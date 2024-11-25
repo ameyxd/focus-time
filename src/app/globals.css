@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -72,7 +72,8 @@
     /* @apply border-border; */
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-black text-white;
+    background: linear-gradient(to bottom right, #000510, #002030);
   }
 }
 
@@ -86,6 +87,15 @@
   .backdrop-blur-card {
     @apply backdrop-blur-xl bg-opacity-20;
   }
+
+  .gradient-border {
+    background: linear-gradient(to bottom, rgb(229 231 235), rgb(255 255 255));
+    padding: 1px;
+  }
+
+  .dark .gradient-border {
+    background: linear-gradient(to bottom, rgb(31 41 55), rgb(17 24 39));
+  }
 }
 
 /* Add at the end of the file */
@@ -98,6 +108,7 @@ body {
 .card {
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .card:hover {
@@ -112,3 +123,50 @@ body {
 body {
   background: linear-gradient(to bottom right, #000510, #002030);
 } 
+
+/* Optional: Add this if you want smoother transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Softer background with subtle texture */
+body {
+  background-image: 
+    linear-gradient(to bottom right, 
+      rgba(255, 255, 255, 0.2), 
+      rgba(255, 255, 255, 0.1)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.01) 0px,
+      rgba(0, 0, 0, 0.01) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  background-color: rgb(249 250 251);
+}
+
+.dark body {
+  background-image: 
+    linear-gradient(to bottom right, 
+      rgba(0, 0, 0, 0.2), 
+      rgba(0, 0, 0, 0.1)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.01) 0px,
+      rgba(255, 255, 255, 0.01) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  background-color: rgb(15 23 42);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 2s ease-in-out infinite;
+}
