@@ -19,6 +19,7 @@ export default function Home() {
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [isMinimized, setIsMinimized] = useState(false);
 
   // Progress calculation
   const secondsProgress = (time % 60) / 60 * 100;
@@ -34,6 +35,18 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isRunning, time]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.focus-card') && !target.closest('.music-player-card')) {
+        setIsMinimized(!isMinimized);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMinimized]);
+
   const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
@@ -42,114 +55,164 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/80 dark:bg-slate-900">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full group">
+      <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full ${
+        isMinimized ? 'minimized-state' : ''
+      }`}>
         <div className="md:col-span-3">
           <MusicPlayer playlistUrl={playlistUrl} />
         </div>
 
-        {/* Timer Card */}
-        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+        {/* Timer Card - Updated for minimized state with correct alignment */}
+        <Card 
+          className={`focus-card relative overflow-hidden transition-all duration-300 hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900 ${
+            isMinimized ? 'h-14' : 'aspect-square'
+          } ${!isMinimized ? 'group-hover:blur-sm hover:!blur-none' : ''}`}
+          onClick={() => isMinimized && setIsMinimized(false)}
+        >
           <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
-          <div className="relative h-full flex flex-col p-8 rounded-[30px]">
-            <div className="flex justify-end gap-2 mb-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                <span className="sr-only">Expand</span>
-                <Maximize2 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                <span className="sr-only">Settings</span>
-                <Settings className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex-1">
-              <h2 className="text-7xl font-bold tracking-tighter mb-2">{formatTime(time)}</h2>
-              <p className="text-gray-500 dark:text-gray-400">Focus</p>
-              <p className="text-gray-500 dark:text-gray-400 mt-4">Just do it.</p>
-            </div>
-            <div className="flex gap-2 justify-start mt-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                onClick={() => setIsRunning(!isRunning)}
-              >
-                {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                onClick={() => {
-                  setTime(25 * 60)
-                  setIsRunning(false)
-                }}
-              >
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                <Zap className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Time & Location Card */}
-        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
-          <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
-          <div className="relative h-full flex flex-col p-8 rounded-[30px]">
-            <div className="flex-1">
-              <h2 className="text-7xl font-bold tracking-tighter mb-2">
-                {format(new Date(), 'HH:mm')}
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Houston
-              </p>
-              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                <p>{format(new Date(), 'EEE, MMM dd')}</p>
-                <p>Week {getWeek(new Date())}</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Settings Card */}
-        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
-          <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
-          <div className="relative h-full flex flex-col p-8 rounded-[30px]">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
-                <Settings className="w-6 h-6" />
-                Settings
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Dark Mode</span>
+          <div className={`relative h-full flex flex-col justify-center ${isMinimized ? 'px-5' : 'p-8'} rounded-[30px]`}>
+            {!isMinimized ? (
+              // Full timer card content
+              <>
+                <div className="flex justify-end gap-2 mb-4">
                   <Button
                     variant="ghost"
                     size="icon"
                     className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   >
-                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    <span className="sr-only">Expand</span>
+                    <Maximize2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  >
+                    <span className="sr-only">Settings</span>
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-7xl font-bold tracking-tighter mb-2">{formatTime(time)}</h2>
+                  <p className="text-gray-500 dark:text-gray-400">Focus</p>
+                  <p className="text-gray-500 dark:text-gray-400 mt-4">Just do it.</p>
+                </div>
+                <div className="flex gap-2 justify-start mt-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    onClick={() => setIsRunning(!isRunning)}
+                  >
+                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    onClick={() => {
+                      setTime(25 * 60)
+                      setIsRunning(false)
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  >
+                    <Zap className="w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            ) : (
+              // Corrected minimized timer content with better alignment
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500" />
+                  <h2 className="text-3xl font-bold tracking-tighter">{formatTime(time)}</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTime(25 * 60);
+                      setIsRunning(false);
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsRunning(!isRunning);
+                    }}
+                  >
+                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </Card>
+
+        {/* Other cards remain the same but hidden in minimized state */}
+        {!isMinimized && (
+          <>
+            {/* Time & Location Card */}
+            <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+              <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
+              <div className="relative h-full flex flex-col p-8 rounded-[30px]">
+                <div className="flex-1">
+                  <h2 className="text-7xl font-bold tracking-tighter mb-2">
+                    {format(new Date(), 'HH:mm')}
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Houston
+                  </p>
+                  <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                    <p>{format(new Date(), 'EEE, MMM dd')}</p>
+                    <p>Week {getWeek(new Date())}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Settings Card */}
+            <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+              <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
+              <div className="relative h-full flex flex-col p-8 rounded-[30px]">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
+                    <Settings className="w-6 h-6" />
+                    Settings
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Dark Mode</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                      >
+                        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );

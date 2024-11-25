@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, Shuffle } from 'lucide-react';
+import { Play, Pause, SkipForward } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 interface MusicPlayerProps {
@@ -29,6 +29,7 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
   const [isMinimized, setIsMinimized] = useState(false);
   const titleRef = useRef<HTMLDivElement>(null);
   const [isTitleOverflowing, setIsTitleOverflowing] = useState(false);
+  const [volume, setVolume] = useState(100);
 
   const PLAYLIST_ID = 'PL6dMWM5sYDapFWlmjH3rXn09igyLVsWNH';
 
@@ -62,27 +63,14 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
     }
   };
 
-  const handleRandom = async () => {
+  const handleNext = async () => {
     if (!isPlayerReady || !player) return;
-
-    try {
-      const playlist = await player.getPlaylist();
-      if (playlist && playlist.length > 0) {
-        const randomIndex = Math.floor(Math.random() * playlist.length);
-        player.playVideoAt(randomIndex);
-        
-        // Immediately update video info and background
-        const videoData = player.getVideoData();
-        const newVideo = {
-          id: videoData.video_id,
-          title: videoData.title
-        };
-        setCurrentVideo(newVideo);
-        setIsPlaying(true);
-        updateBackgroundVideo(true, newVideo);
-      }
-    } catch (error) {
-      console.error('Error playing random video:', error);
+    
+    const playlist = await player.getPlaylist();
+    if (playlist && playlist.length > 0) {
+      const randomIndex = Math.floor(Math.random() * playlist.length);
+      player.playVideoAt(randomIndex);
+      setIsPlaying(true);
     }
   };
 
@@ -98,7 +86,6 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
 
       const blurLayer = document.createElement('div');
       blurLayer.className = 'blur-layer';
-      blurLayer.style.filter = `blur(${blurAmount}px) brightness(0.3)`;
       backgroundVideo.appendChild(blurLayer);
     }
 
@@ -141,14 +128,10 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
       index: 0,
     });
 
-    // Pause immediately and get initial video data
+    // Play random video after a short delay
     setTimeout(() => {
+      handleNext();
       ytPlayer.pauseVideo();
-      const videoData = ytPlayer.getVideoData();
-      setCurrentVideo({
-        id: videoData.video_id,
-        title: videoData.title
-      });
     }, 100);
   };
 
@@ -197,12 +180,25 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleVolumeChange = (newVolume: number[]) => {
+    const volumeValue = newVolume[0];
+    setVolume(volumeValue);
+    if (player && typeof player.setVolume === 'function') {
+      player.setVolume(volumeValue);
+    }
+  };
+
   return (
     <Card 
       className={`music-player-card relative overflow-hidden transition-all duration-300 hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900 ${
-        isMinimized ? 'fixed bottom-4 left-1/2 -translate-x-1/2 w-96 z-50' : 'w-full'
+        isMinimized ? 'minimized' : 'w-full'
       }`}
-      onClick={() => setIsMinimized(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (isMinimized) {
+          setIsMinimized(false);
+        }
+      }}
     >
       <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
       <div className="relative flex flex-col p-8 rounded-[30px]">
@@ -225,10 +221,7 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
               variant="ghost"
               size="icon"
               className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              onClick={(e) => {
-                e.stopPropagation();
-                isPlaying ? handlePause() : handlePlay();
-              }}
+              onClick={isPlaying ? handlePause : handlePlay}
               disabled={!isPlayerReady}
             >
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -237,31 +230,43 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
               variant="ghost"
               size="icon"
               className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRandom();
-              }}
+              onClick={handleNext}
               disabled={!isPlayerReady}
             >
-              <Shuffle className="h-4 w-4" />
+              <SkipForward className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
         {/* Blur control slider - Only show when not minimized */}
         {!isMinimized && (
-          <div className="mt-4 flex items-center gap-2">
-            <label className="text-xs text-muted-foreground whitespace-nowrap">
-              Blur: {blurAmount}
-            </label>
-            <Slider
-              value={[blurAmount]}
-              onValueChange={([value]) => setBlurAmount(value)}
-              min={0}
-              max={20}
-              step={1}
-              className="w-24 ml-2"
-            />
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted-foreground whitespace-nowrap">
+                Blur: {blurAmount}
+              </label>
+              <Slider
+                value={[blurAmount]}
+                onValueChange={([value]) => setBlurAmount(value)}
+                min={0}
+                max={20}
+                step={1}
+                className="w-24 ml-2"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted-foreground whitespace-nowrap">
+                Volume: {volume}
+              </label>
+              <Slider
+                value={[volume]}
+                onValueChange={handleVolumeChange}
+                min={0}
+                max={100}
+                step={1}
+                className="w-24 ml-2"
+              />
+            </div>
           </div>
         )}
 
