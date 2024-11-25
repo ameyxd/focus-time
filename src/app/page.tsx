@@ -13,6 +13,7 @@ import { Clock, Settings, MapPin, Play, RefreshCw, Pause, Moon, Sun, Maximize2, 
 import { format, getWeek } from "date-fns";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { MusicPlayer } from "@/components/MusicPlayer";
 
 export default function Home() {
   const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
@@ -21,6 +22,7 @@ export default function Home() {
 
   // Progress calculation
   const secondsProgress = (time % 60) / 60 * 100;
+  const playlistUrl = "https://www.youtube.com/playlist?list=PL6dMWM5sYDapFWlmjH3rXn09igyLVsWNH";
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -41,6 +43,10 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/80 dark:bg-slate-900">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full group">
+        <div className="md:col-span-3">
+          <MusicPlayer playlistUrl={playlistUrl} />
+        </div>
+
         {/* Timer Card */}
         <Card className="aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
