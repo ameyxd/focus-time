@@ -1,101 +1,101 @@
-import Image from "next/image";
+/**
+ * Focus Time App - Home Page
+ * Author: Amey Ambade
+ * Created: 2024-11-25
+ * 
+ * Main page component containing the grid layout of focus cards
+ */
+"use client";
+
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Clock, Settings, MapPin, Play, RefreshCw, Pause } from "lucide-react";
+import { format } from "date-fns";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [time, setTime] = useState(25 * 60); // 25 minutes in seconds
+  const [isRunning, setIsRunning] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRunning && time > 0) {
+      interval = setInterval(() => {
+        setTime((prevTime) => prevTime - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, time]);
+
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Timer Card */}
+        <Card className="aspect-square p-6 relative overflow-hidden cursor-pointer group">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 to-slate-900" />
+          <div className="relative h-full flex flex-col justify-between">
+            <div>
+              <h2 className="text-7xl font-bold tracking-tighter mb-2">{formatTime(time)}</h2>
+              <p className="text-muted-foreground flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Focus
+              </p>
+            </div>
+            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsRunning(!isRunning)}
+              >
+                {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setTime(25 * 60);
+                  setIsRunning(false);
+                }}
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Time & Location Card */}
+        <Card className="aspect-square p-6 relative overflow-hidden cursor-pointer">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-950 to-slate-900" />
+          <div className="relative h-full flex flex-col justify-between">
+            <div>
+              <h2 className="text-7xl font-bold tracking-tighter mb-2">
+                {format(new Date(), 'HH:mm')}
+              </h2>
+              <p className="text-muted-foreground flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Houston
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Settings Card */}
+        <Card className="aspect-square p-6 relative overflow-hidden cursor-pointer">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-950 to-slate-900" />
+          <div className="relative h-full">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Settings className="w-6 h-6" />
+              Settings
+            </h2>
+          </div>
+        </Card>
+      </div>
     </div>
   );
-}
+} 
