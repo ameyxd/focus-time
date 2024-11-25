@@ -10,7 +10,7 @@
 /* eslint-disable react/no-unescaped-entities */
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Martian_Mono } from 'next/font/google'
@@ -54,7 +54,7 @@ export default function RootLayout({
             {children}
             <footer className="fixed bottom-4 w-full text-center text-sm text-gray-500 dark:text-gray-400 space-y-1">
               <div>
-                Engineered out of 🙄 by Amey Ambade in Houston 
+                Engineered out of 🙄 by <a href="https://heyamey.com" className="hover:underline">Amey Ambade</a> in Houston, TX
                 <span className="inline-block w-2 h-2 bg-green-500 rounded-full ml-1 animate-pulse" />
               </div>
               <div>© 2024 Focus App</div>

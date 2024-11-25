@@ -25,6 +25,10 @@ export default function Home() {
   const secondsProgress = (time % 60) / 60 * 100;
   const playlistUrl = "https://www.youtube.com/playlist?list=PL6dMWM5sYDapFWlmjH3rXn09igyLVsWNH";
 
+  const progressStyle = {
+    width: `${secondsProgress}%`
+  };
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRunning && time > 0) {
