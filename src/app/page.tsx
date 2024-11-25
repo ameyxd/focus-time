@@ -48,7 +48,7 @@ export default function Home() {
         </div>
 
         {/* Timer Card */}
-        <Card className="aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
           <div className="relative h-full flex flex-col p-8 rounded-[30px]">
             <div className="flex justify-end gap-2 mb-4">
@@ -106,7 +106,7 @@ export default function Home() {
         </Card>
 
         {/* Time & Location Card */}
-        <Card className="aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
           <div className="relative h-full flex flex-col p-8 rounded-[30px]">
             <div className="flex-1">
@@ -126,7 +126,7 @@ export default function Home() {
         </Card>
 
         {/* Settings Card */}
-        <Card className="aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+        <Card className="focus-card aspect-square relative overflow-hidden transition-all duration-300 group-hover:blur-sm hover:!blur-none hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
           <div className="relative h-full flex flex-col p-8 rounded-[30px]">
             <div className="flex-1">

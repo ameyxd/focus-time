@@ -26,6 +26,9 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [blurAmount, setBlurAmount] = useState(20);
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [isTitleOverflowing, setIsTitleOverflowing] = useState(false);
 
   const PLAYLIST_ID = 'PL6dMWM5sYDapFWlmjH3rXn09igyLVsWNH';
 
@@ -174,18 +177,33 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
     }
   }, [blurAmount]);
 
-  // Cleanup on unmount
+  // Check if title is overflowing
   useEffect(() => {
-    return () => {
-      const backgroundVideo = document.querySelector('.video-background');
-      if (backgroundVideo) {
-        backgroundVideo.remove();
+    if (titleRef.current) {
+      setIsTitleOverflowing(titleRef.current.scrollWidth > titleRef.current.clientWidth);
+    }
+  }, [currentVideo?.title]);
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.music-player-card') && !target.closest('.focus-card')) {
+        setIsMinimized(true);
       }
     };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900">
+    <Card 
+      className={`music-player-card relative overflow-hidden transition-all duration-300 hover:scale-[1.02] rounded-[32px] bg-gradient-to-b from-gray-200 to-white p-[2px] dark:from-gray-800 dark:to-gray-900 ${
+        isMinimized ? 'fixed bottom-4 left-1/2 -translate-x-1/2 w-96 z-50' : 'w-full'
+      }`}
+      onClick={() => setIsMinimized(false)}
+    >
       <div className="absolute inset-0 rounded-[30px] bg-white dark:bg-slate-900" />
       <div className="relative flex flex-col p-8 rounded-[30px]">
         <div className="flex items-center justify-between gap-4">
@@ -193,9 +211,9 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
             <h2 className="text-2xl font-bold">Now Playing</h2>
             <div className="overflow-hidden">
               <div 
-                ref={marqueeRef}
+                ref={titleRef}
                 className={`text-muted-foreground whitespace-nowrap ${
-                  currentVideo?.title.length > 40 ? 'marquee' : ''
+                  isTitleOverflowing ? 'marquee' : ''
                 }`}
               >
                 {currentVideo?.title || 'Select a track'}
@@ -207,7 +225,10 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
               variant="ghost"
               size="icon"
               className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              onClick={isPlaying ? handlePause : handlePlay}
+              onClick={(e) => {
+                e.stopPropagation();
+                isPlaying ? handlePause() : handlePlay();
+              }}
               disabled={!isPlayerReady}
             >
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -216,7 +237,10 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
               variant="ghost"
               size="icon"
               className="rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              onClick={handleRandom}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRandom();
+              }}
               disabled={!isPlayerReady}
             >
               <Shuffle className="h-4 w-4" />
@@ -224,20 +248,22 @@ export function MusicPlayer({ playlistUrl }: MusicPlayerProps) {
           </div>
         </div>
         
-        {/* Blur control slider */}
-        <div className="mt-4">
-          <label className="text-sm text-muted-foreground mb-2 block">
-            Background Blur: {blurAmount}px
-          </label>
-          <Slider
-            value={[blurAmount]}
-            onValueChange={([value]) => setBlurAmount(value)}
-            min={0}
-            max={40}
-            step={1}
-            className="w-full"
-          />
-        </div>
+        {/* Blur control slider - Only show when not minimized */}
+        {!isMinimized && (
+          <div className="mt-4 flex items-center gap-2">
+            <label className="text-xs text-muted-foreground whitespace-nowrap">
+              Blur: {blurAmount}
+            </label>
+            <Slider
+              value={[blurAmount]}
+              onValueChange={([value]) => setBlurAmount(value)}
+              min={0}
+              max={20}
+              step={1}
+              className="w-24 ml-2"
+            />
+          </div>
+        )}
 
         <div style={{ display: 'none' }}>
           <YouTube
