@@ -33,7 +33,6 @@ const martianMono = Martian_Mono({
 export const metadata: Metadata = {
   title: "Focus Time",
   description: "A minimal pomodoro and focus app",
-  suppressHydrationWarning: true,
 };
 
 export default function RootLayout({
